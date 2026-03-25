@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Result Calculator</title>
+
+<style>
+:root {
+    --primary: #4facfe;
+    --danger: #ff4d4d;
+    --success: #28a745;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 420px;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.section-title {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.input-group {
+    margin-top: 10px;
+}
+
+.input-group label {
+    font-size: 13px;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 2px solid #ddd;
+    outline: none;
+    transition: 0.2s;
+}
+
+.input-group input:focus {
+    border-color: var(--primary);
+}
+
+.invalid {
+    border-color: var(--danger) !important;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.calculate {
+    background: var(--primary);
+    color: white;
+}
+
+.reset {
+    background: #eee;
+}
+
+.result {
+    margin-top: 20px;
+    display: none;
+    padding: 15px;
+    border-radius: 10px;
+    background: #f8f9fa;
+}
+
+.progress {
+    height: 8px;
+    background: #ddd;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.bar {
+    height: 100%;
+    background: var(--primary);
+    width: 0%;
+    border-radius: 10px;
+    transition: 0.4s;
+}
+
+.pass { color: var(--success); }
+.fail { color: var(--danger); }
+
+#error {
+    color: var(--danger);
+    text-align: center;
+    margin-top: 8px;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>🎓 Result Calculator</h1>
+
+<form id="form">
+
+<div class="section-title">Theory Subjects</div>
+
+<div class="input-group"><label>Subject 1</label><input type="number"></div>
+<div class="input-group"><label>Subject 2</label><input type="number"></div>
+<div class="input-group"><label>Subject 3</label><input type="number"></div>
+<div class="input-group"><label>Subject 4</label><input type="number"></div>
+<div class="input-group"><label>Subject 5</label><input type="number"></div>
+<div class="input-group"><label>Subject 6</label><input type="number"></div>
+
+<div class="section-title">Lab Subjects</div>
+
+<div class="input-group"><label>Lab 1</label><input type="number"></div>
+<div class="input-group"><label>Lab 2</label><input type="number"></div>
+<div class="input-group"><label>Lab 3</label><input type="number"></div>
+
+<div class="buttons">
+<button type="submit" class="calculate">Calculate</button>
+<button type="button" class="reset" onclick="resetForm()">Reset</button>
+</div>
+
+</form>
+
+<p id="error"></p>
+
+<div class="result" id="resultBox">
+<p><strong>Total:</strong> <span id="total"></span></p>
+<p><strong>Percentage:</strong> <span id="percentage"></span></p>
+
+<div class="progress"><div class="bar" id="bar"></div></div>
+
+<p><strong>Grade:</strong> <span id="grade"></span></p>
+<p><strong>Division:</strong> <span id="division"></span></p>
+<p><strong>Status:</strong> <span id="status"></span></p>
+</div>
+
+</div>
+
+<script>
+const form = document.getElementById("form");
+
+form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    calculate();
+});
+
+function getInputs() {
+    return [...document.querySelectorAll("input")];
+}
+
+function validate(inputs) {
+    let valid = true;
+
+    inputs.forEach(input => {
+        let val = parseFloat(input.value);
+
+        if (isNaN(val) || val < 0 || val > 100) {
+            input.classList.add("invalid");
+            valid = false;
+        } else {
+            input.classList.remove("invalid");
+        }
+    });
+
+    return valid;
+}
+
+function calculate() {
+    let inputs = getInputs();
+
+    if (!validate(inputs)) {
+        document.getElementById("error").innerText = "Enter valid marks (0-100)";
+        return;
+    }
+
+    let total = 0;
+    let fail = false;
+
+    inputs.forEach(input => {
+        let val = parseFloat(input.value);
+        total += val;
+        if (val < 40) fail = true;
+    });
+
+    let percentage = total / inputs.length;
+
+    let grade =
+        percentage >= 90 ? "A+" :
+        percentage >= 80 ? "A" :
+        percentage >= 70 ? "B" :
+        percentage >= 60 ? "C" :
+        percentage >= 50 ? "D" : "F";
+
+    let division =
+        percentage >= 60 ? "First Class" :
+        percentage >= 50 ? "Second Class" :
+        percentage >= 40 ? "Third Class" : "Fail";
+
+    document.getElementById("total").innerText = total;
+    document.getElementById("percentage").innerText = percentage.toFixed(2) + "%";
+    document.getElementById("grade").innerText = grade;
+    document.getElementById("division").innerText = division;
+
+    let status = document.getElementById("status");
+    status.innerText = fail ? "Fail" : "Pass";
+    status.className = fail ? "fail" : "pass";
+
+    document.getElementById("bar").style.width = percentage + "%";
+    document.getElementById("resultBox").style.display = "block";
+}
+
+function resetForm() {
+    getInputs().forEach(i => {
+        i.value = "";
+        i.classList.remove("invalid");
+    });
+
+    document.getElementById("resultBox").style.display = "none";
+    document.getElementById("error").innerText = "";
+}
+</script>
+
+</body>
+</html>
